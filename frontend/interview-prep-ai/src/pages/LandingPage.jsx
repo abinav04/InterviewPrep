@@ -1,17 +1,27 @@
-import React, { useState } from "react";
+import React, {useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
-
+import Modal from "../components/Modal";
 import HERO_IMG from "../assets/hero-img.png";
 import { APP_FEATURES } from "../utils/data";
 import { LuSparkles } from "react-icons/lu";
-
+import Login from "./Auth/Login";
+import SignUp from "./Auth/SignUp";
+import { UserContext } from "../context/userContext";
+import ProfileInfoCard from "../components/Cards/ProfileInfoCard";
 const LandingPage = () => {
+  const {user} = useContext(UserContext);
   const navigate = useNavigate();
 
   const [openAuthModal, setOpenAuthModal] = useState(false);
   const [currentPage, setCurrentPage] = useState("login");
 
-  const handleCTA = () => {};
+  const handleCTA = () => {
+      if(!user){
+        setOpenAuthModal(true);
+      } else{
+        navigate("/dashboard");
+      }
+  };
   return (
     <>
       <div className="w-full min-h-full bg-[#FFFCEF]">
@@ -20,12 +30,12 @@ const LandingPage = () => {
           {/* Header  */}
           <header className="flex justify-between items-center mb-16">
             <div className="text-xl text-black font-bold">InterviewPrep AI</div>
-            <button
+            {user ? (<ProfileInfoCard/>) : (<button
               className="bg-linear-to-r from-[#ff9324] to-[#e99a4b] text-sm font-semibold text-white px-7 py-2.5 rounded-full hover:bg-black hover:text-white border border-white  transition-colors cursor-pointer"
               onClick={() => setOpenAuthModal(true)}
             >
               Login / Signup
-            </button>
+            </button>)}
           </header>
           {/* Hero Section  */}
           <div className="flex flex-col md:flex-row items-center">
@@ -112,7 +122,23 @@ const LandingPage = () => {
           </div>
         </div>
       </div>
-    </>
+      <Modal isOpen={openAuthModal} 
+            onClose={() => {
+              setOpenAuthModal(false);
+              setCurrentPage("login");
+              }}
+              hideHeader
+              >
+          <div>
+            {currentPage === "login" && (
+              <Login setCurrentPage={setCurrentPage} />
+            )}
+            {currentPage === "signup" && (
+              <SignUp setCurrentPage={setCurrentPage} />
+            )}
+          </div>
+      </Modal>
+    </> 
   );
 };
 
